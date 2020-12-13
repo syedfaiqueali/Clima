@@ -8,16 +8,21 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController, UITextFieldDelegate {
-
+class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
+    
     //MARK:- IBOutlet
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var searchTextField: UITextField!
     
+    // Instance of WeatherManager
+    var weatherManager = WeatherManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        weatherManager.delegate = self
         
         //to allow textfield delegate methods
         searchTextField.delegate = self
@@ -53,7 +58,17 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     
     //When user stops editing so clears previous text from search text field
     func textFieldDidEndEditing(_ textField: UITextField) {
+        //guard let city = searchTextField.text else {return}
+        
+        if let city = searchTextField.text {
+            weatherManager.fetchWeather(cityName: city)
+        }
         searchTextField.text = ""
+    }
+    
+    //MARK:- Weather Manager Delegate
+    func didUpdateWeather(weather: WeatherModel) {
+        print(weather.conditionName)
     }
 }
 
