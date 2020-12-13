@@ -2,8 +2,8 @@
 //  ViewController.swift
 //  Clima
 //
-//  Created by Angela Yu on 01/09/2019.
-//  Copyright © 2019 App Brewery. All rights reserved.
+//  Created by Faiq on 13/12/2020.
+//  Copyright © 2020 App Brewery. All rights reserved.
 //
 
 import UIKit
@@ -19,6 +19,7 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //to allow textfield delegate methods
         searchTextField.delegate = self
     }
 
