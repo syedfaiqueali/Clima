@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import CoreLocation
 
-class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
+class WeatherViewController: UIViewController {
     
     //MARK:- IBOutlet
     @IBOutlet weak var conditionImageView: UIImageView!
@@ -18,17 +19,34 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
     
     // Instance of WeatherManager
     var weatherManager = WeatherManager()
+    // For accessing location
+    let locationManager = CLLocationManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        locationManager.delegate = self
         
+        //Ask user's location permission
+        locationManager.requestWhenInUseAuthorization()
+        //Access user's current location
+        locationManager.requestLocation()
+        
+        //Delegates
         weatherManager.delegate = self
-        
-        //to allow textfield delegate methods
         searchTextField.delegate = self
     }
-
+    
     //MARK:- IBAction
+    @IBAction func locationPressed(_ sender: UIButton) {
+        locationManager.requestLocation()
+    }
+    
+}
+
+//MARK:- SearchTextField delegate methods
+extension WeatherViewController: UITextFieldDelegate {
+    
+    //MARK:- IBAction of SearchBtn
     @IBAction func searchPressed(_ sender: UIButton) {
         //to dismiss the keyboard
         searchTextField.endEditing(true)
@@ -36,7 +54,6 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         print(searchTextField.text!)
     }
     
-    //MARK:- SearchTextField delegate methods
     //When user press 'Go' button from keyboard. So it act as a return keyboard
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         //to dismiss the keyboard
@@ -65,10 +82,45 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         }
         searchTextField.text = ""
     }
+}
+
+//MARK:- Weather Manager Delegate
+extension WeatherViewController: WeatherManagerDelegate {
     
-    //MARK:- Weather Manager Delegate
-    func didUpdateWeather(weather: WeatherModel) {
-        print(weather.conditionName)
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
+        // Dispatch is necessary so that main thread is not blocked
+        // and our UI doesnt get stucks
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weather.temperatureString
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+            self.cityLabel.text = weather.cityName
+        }
+    }
+    
+    func didFailWithError(error: Error) {
+        print(error)
     }
 }
 
+//MARK:- CoreLocation Manager Delegate
+extension WeatherViewController: CLLocationManagerDelegate {
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        //last - to get the most accurate
+        if let location = locations.last {
+            //stop updating location as soon we got our last
+            locationManager.stopUpdatingLocation()
+            
+            let lat = location.coordinate.latitude
+            let lon = location.coordinate.longitude
+            weatherManager.fetchWeather(latitude: lat, longitude: lon)
+        }
+        //print("Got our location")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
+    
+}

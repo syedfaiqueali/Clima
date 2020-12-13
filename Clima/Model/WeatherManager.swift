@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import CoreLocation
 
 protocol WeatherManagerDelegate {
-    func didUpdateWeather(weather: WeatherModel)
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel)
+    func didFailWithError(error: Error)
 }
 
 struct WeatherManager {
@@ -20,11 +22,16 @@ struct WeatherManager {
     
     func fetchWeather(cityName: String) {
         let urlString = "\(weatherURL)&q=\(cityName)"
-        performRequest(urlString: urlString)
+        performRequest(with: urlString)
         //print(urlString)
     }
     
-    func performRequest(urlString: String) {
+    func fetchWeather(latitude: CLLocationDegrees ,longitude: CLLocationDegrees){
+        let urlString = "\(weatherURL)&lat=\(latitude)&lon=\(longitude)"
+        performRequest(with: urlString)
+    }
+    
+    func performRequest(with urlString: String) {
         //1. Create a URL
         if let url = URL(string: urlString) {
             //2. Create a URLSession
@@ -39,7 +46,8 @@ struct WeatherManager {
             let task = session.dataTask(with: url) {
                 (data, response, error) in
                 if error != nil {
-                    print(error!)
+                    //print(error!)
+                    self.delegate?.didFailWithError(error: error!)
                     //If error occurs, simply exit this func
                     return
                 }
@@ -47,8 +55,9 @@ struct WeatherManager {
                 if let safeData = data {
                     //un-wrapped data
                     //let dataString = String(data: safeData, encoding: .utf8)
-                    if let weather = self.parseJSON(weatherData: safeData) {
-                        self.delegate?.didUpdateWeather(weather: weather)
+                    if let weather = self.parseJSON(safeData) {
+                        self.delegate?.didUpdateWeather(self, weather: weather)
+                        
                         //this is a bad pract(have to make WeatherManager reuseable)
                         //let weatherVC = WeatherViewController()
                         //weatherVC.didUpdateWeather(weather)
@@ -76,7 +85,7 @@ struct WeatherManager {
      }
      } */
     
-    func parseJSON(weatherData: Data) -> WeatherModel? {
+    func parseJSON(_ weatherData: Data) -> WeatherModel? {
         let decoder = JSONDecoder()
         do {
             let decodedData = try decoder.decode(WeatherData.self, from: weatherData)
@@ -95,7 +104,8 @@ struct WeatherManager {
             //print(weather.temperatureString)
             
         } catch {
-            print(error)
+            //print(error)
+            delegate?.didFailWithError(error: error)
             return nil
         }
     }
