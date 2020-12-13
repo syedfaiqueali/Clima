@@ -68,7 +68,12 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
     
     //MARK:- Weather Manager Delegate
     func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
-        print(weather.temperature)
+        // Dispatch is necessary so that main thread is not blocked
+        // and our UI doesnt get stucks
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weather.temperatureString
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+        }
     }
     
     func didFailWithError(error: Error) {
