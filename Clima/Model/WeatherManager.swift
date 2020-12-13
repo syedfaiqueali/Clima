@@ -79,6 +79,7 @@ struct WeatherManager {
                 temperature: temp)
             //calling func to get type of weather
             print(weather.conditionName)
+            print(weather.temperatureString)
             
         } catch {
             print(error)

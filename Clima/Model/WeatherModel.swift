@@ -13,7 +13,14 @@ struct WeatherModel {
     let cityName: String
     let temperature: Double
     
-    //computed property
+    //MARK:- Computed Properties
+    
+    //convert double temp to a String temp
+    var temperatureString: String {
+        return String(format: "%.1f", temperature)
+    }
+    
+    // For weather icon name
     var conditionName: String {
         switch conditionId {
         case 200...232:
