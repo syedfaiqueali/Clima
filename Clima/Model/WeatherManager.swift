@@ -8,8 +8,15 @@
 
 import Foundation
 
+protocol WeatherManagerDelegate {
+    func didUpdateWeather(weather: WeatherModel)
+}
+
 struct WeatherManager {
+    
     let weatherURL = "https://api.openweathermap.org/data/2.5/weather?appid=b6766df6e9826fd7ab23423196c12f38&units=metric"
+    
+    var delegate: WeatherManagerDelegate?
     
     func fetchWeather(cityName: String) {
         let urlString = "\(weatherURL)&q=\(cityName)"
@@ -40,7 +47,12 @@ struct WeatherManager {
                 if let safeData = data {
                     //un-wrapped data
                     //let dataString = String(data: safeData, encoding: .utf8)
-                    self.parseJSON(weatherData: safeData)
+                    if let weather = self.parseJSON(weatherData: safeData) {
+                        self.delegate?.didUpdateWeather(weather: weather)
+                        //this is a bad pract(have to make WeatherManager reuseable)
+                        //let weatherVC = WeatherViewController()
+                        //weatherVC.didUpdateWeather(weather)
+                    }
                 }
             }
             
@@ -64,7 +76,7 @@ struct WeatherManager {
      }
      } */
     
-    func parseJSON(weatherData: Data) {
+    func parseJSON(weatherData: Data) -> WeatherModel? {
         let decoder = JSONDecoder()
         do {
             let decodedData = try decoder.decode(WeatherData.self, from: weatherData)
@@ -77,12 +89,14 @@ struct WeatherManager {
                 conditionId: id,
                 cityName: name,
                 temperature: temp)
+            return weather
             //calling func to get type of weather
-            print(weather.conditionName)
-            print(weather.temperatureString)
+            //print(weather.conditionName)
+            //print(weather.temperatureString)
             
         } catch {
             print(error)
+            return nil
         }
     }
     

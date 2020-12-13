@@ -8,8 +8,8 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController, UITextFieldDelegate {
-
+class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
+    
     //MARK:- IBOutlet
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
@@ -21,6 +21,8 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        weatherManager.delegate = self
         
         //to allow textfield delegate methods
         searchTextField.delegate = self
@@ -62,6 +64,11 @@ class WeatherViewController: UIViewController, UITextFieldDelegate {
             weatherManager.fetchWeather(cityName: city)
         }
         searchTextField.text = ""
+    }
+    
+    //MARK:- Weather Manager Delegate
+    func didUpdateWeather(weather: WeatherModel) {
+        print(weather.conditionName)
     }
 }
 
