@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
+class WeatherViewController: UIViewController {
     
     //MARK:- IBOutlet
     @IBOutlet weak var conditionImageView: UIImageView!
@@ -28,6 +28,13 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         searchTextField.delegate = self
     }
 
+}
+
+//MARK:- Extensions
+
+//MARK:- SearchTextField delegate methods
+extension WeatherViewController: UITextFieldDelegate {
+    
     //MARK:- IBAction
     @IBAction func searchPressed(_ sender: UIButton) {
         //to dismiss the keyboard
@@ -36,7 +43,6 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         print(searchTextField.text!)
     }
     
-    //MARK:- SearchTextField delegate methods
     //When user press 'Go' button from keyboard. So it act as a return keyboard
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         //to dismiss the keyboard
@@ -65,8 +71,11 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         }
         searchTextField.text = ""
     }
+}
+
+//MARK:- Weather Manager Delegate
+extension WeatherViewController: WeatherManagerDelegate {
     
-    //MARK:- Weather Manager Delegate
     func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
         // Dispatch is necessary so that main thread is not blocked
         // and our UI doesnt get stucks
@@ -80,4 +89,3 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         print(error)
     }
 }
-
