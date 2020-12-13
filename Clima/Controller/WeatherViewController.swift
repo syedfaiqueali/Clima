@@ -67,8 +67,8 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
     }
     
     //MARK:- Weather Manager Delegate
-    func didUpdateWeather(weather: WeatherModel) {
-        print(weather.conditionName)
+    func didUpdateWeather(_ weatherManager: WeatherManager, weather: WeatherModel) {
+        print(weather.temperature)
     }
 }
 
